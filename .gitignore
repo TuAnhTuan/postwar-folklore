@@ -1,0 +1,41 @@
+# ── BACKEND ──
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/*.log
+backend/logs/
+
+# Firebase credentials (TUYỆT ĐỐI KHÔNG PUSH!)
+*service-account*.json
+firebase-credentials.json
+firebase-adminsdk*.json
+
+# ── FRONTEND ──
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.env.production
+
+# ── ENV FILES (root) ──
+.env
+.env.*
+!.env.example
+
+# ── IDE ──
+.idea/
+.vscode/
+*.iml
+*.suo
+*.swp
+
+# ── OS ──
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+
+# ── LOGS ──
+*.log
+npm-debug.log*
+yarn-error.log*
