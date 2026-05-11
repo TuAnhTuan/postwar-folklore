@@ -8,6 +8,7 @@ backend/logs/
 *service-account*.json
 firebase-credentials.json
 firebase-adminsdk*.json
+*firebase-adminsdk*.json
 
 # ── FRONTEND ──
 frontend/node_modules/
