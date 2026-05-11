@@ -24,31 +24,40 @@ public class FirebaseConfig {
     private String serviceAccountJson;
 
     @PostConstruct
-    public void initFirebase() throws IOException {
+    public void initFirebase() {
         if (!FirebaseApp.getApps().isEmpty()) return;
 
-        GoogleCredentials credentials;
+        try {
+            GoogleCredentials credentials;
 
-        if (serviceAccountJson != null && !serviceAccountJson.isBlank()) {
-            // Render: đọc từ biến môi trường JSON string
-            log.info("Firebase: loading credentials from environment variable");
-            credentials = GoogleCredentials.fromStream(
-                new ByteArrayInputStream(serviceAccountJson.getBytes(StandardCharsets.UTF_8))
-            );
-        } else if (serviceAccountPath != null && !serviceAccountPath.isBlank()) {
-            // Local dev: đọc từ file JSON
-            log.info("Firebase: loading credentials from file {}", serviceAccountPath);
-            credentials = GoogleCredentials.fromStream(new FileInputStream(serviceAccountPath));
-        } else {
-            log.warn("Firebase: no credentials configured — authentication will not work");
-            return;
+            if (serviceAccountJson != null && !serviceAccountJson.isBlank()
+                    && serviceAccountJson.contains("private_key")) {
+                // Render / Docker: đọc từ biến môi trường JSON string
+                log.info("Firebase: loading credentials from environment variable");
+                credentials = GoogleCredentials.fromStream(
+                    new ByteArrayInputStream(serviceAccountJson.getBytes(StandardCharsets.UTF_8))
+                );
+            } else if (serviceAccountPath != null && !serviceAccountPath.isBlank()) {
+                // Local dev: đọc từ file JSON
+                log.info("Firebase: loading credentials from file {}", serviceAccountPath);
+                credentials = GoogleCredentials.fromStream(new FileInputStream(serviceAccountPath));
+            } else {
+                log.warn("Firebase: no valid credentials configured — authentication disabled");
+                return;
+            }
+
+            FirebaseOptions options = FirebaseOptions.builder()
+                .setCredentials(credentials)
+                .build();
+
+            FirebaseApp.initializeApp(options);
+            log.info("Firebase initialized successfully");
+
+        } catch (Exception e) {
+            // Không crash app — chỉ warn và chạy tiếp không có Firebase
+            log.warn("Firebase: failed to initialize ({}). Authentication will be disabled. " +
+                     "Set FIREBASE_SERVICE_ACCOUNT_JSON or FIREBASE_SERVICE_ACCOUNT_PATH to enable.",
+                     e.getMessage());
         }
-
-        FirebaseOptions options = FirebaseOptions.builder()
-            .setCredentials(credentials)
-            .build();
-
-        FirebaseApp.initializeApp(options);
-        log.info("Firebase initialized successfully");
     }
 }

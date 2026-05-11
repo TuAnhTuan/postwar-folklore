@@ -1,5 +1,6 @@
 package com.postwarfolklore.backend.controller;
 
+import com.postwarfolklore.backend.dto.ChatResponse;
 import com.postwarfolklore.backend.service.AiChatService;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
@@ -31,7 +32,7 @@ public class AiChatController {
     }
 
     @PostMapping("/chat")
-    public ResponseEntity<Map<String, String>> chat(
+    public ResponseEntity<?> chat(
         @RequestBody Map<String, String> body,
         HttpServletRequest request
     ) {
@@ -48,8 +49,8 @@ public class AiChatController {
             return ResponseEntity.badRequest().body(Map.of("error", "Tin nhắn không được để trống."));
         }
 
-        String reply = aiChatService.chat(userMessage);
-        return ResponseEntity.ok(Map.of("reply", reply));
+        ChatResponse response = aiChatService.chat(userMessage);
+        return ResponseEntity.ok(response);
     }
 
     // Admin: cập nhật system prompt

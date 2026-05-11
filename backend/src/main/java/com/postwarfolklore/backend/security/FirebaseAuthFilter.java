@@ -38,6 +38,11 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             try {
+                // Nếu Firebase chưa được init (không có credentials) → bỏ qua
+                if (com.google.firebase.FirebaseApp.getApps().isEmpty()) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
                 FirebaseToken decoded = FirebaseAuth.getInstance().verifyIdToken(token);
 
                 List<SimpleGrantedAuthority> authorities = new ArrayList<>();

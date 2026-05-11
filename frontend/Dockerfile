@@ -9,7 +9,8 @@ WORKDIR /app
 # Copy package files trước để cache layer node_modules
 # (chỉ re-install khi package.json / package-lock.json thay đổi)
 COPY package.json package-lock.json* ./
-RUN npm ci --prefer-offline --no-audit
+# Dùng npm ci nếu có lockfile (nhanh hơn), fallback npm install nếu không có
+RUN if [ -f package-lock.json ]; then npm ci --no-audit; else npm install --no-audit; fi
 
 # Copy toàn bộ source
 COPY . .

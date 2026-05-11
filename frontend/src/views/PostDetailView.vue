@@ -14,7 +14,7 @@
       </div>
     </div>
 
-    <img v-if="post.thumbnailUrl" :src="post.thumbnailUrl" class="post-thumbnail" :alt="post.title" />
+    <img v-if="post.thumbnailUrl" :src="heroSrc" class="post-thumbnail" :alt="post.title" />
 
     <div class="post-content">{{ post.content }}</div>
 
@@ -26,14 +26,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import CommentSection from '@/components/CommentSection.vue'
 import api from '@/utils/axios'
+import { cloudinaryUrl } from '@/utils/cloudinary'
 
 const route   = useRoute()
 const post    = ref(null)
 const loading = ref(true)
+
+const heroSrc = computed(() =>
+  cloudinaryUrl(post.value?.thumbnailUrl, { w: 1200, h: 675 })
+)
 
 function formatDate(dateStr) {
   if (!dateStr) return ''

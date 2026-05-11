@@ -20,6 +20,8 @@ spring:
   jackson:
     default-property-inclusion: non_null
     time-zone: Asia/Ho_Chi_Minh
+    serialization:
+      write-dates-as-timestamps: false   # LocalDateTime → ISO string thay vì array
 
 server:
   port: ${PORT:8080}
@@ -45,6 +47,10 @@ ai:
     api-key: ${OPENAI_API_KEY:}
     model: gpt-4o-mini
 
+# ── APP ──
+app:
+  setup-secret: ${SETUP_SECRET:CHANGE_ME_BEFORE_USE}
+
 # ── RATE LIMITING ──
 rate-limit:
   chat:
@@ -59,5 +65,5 @@ cors:
 # ── LOGGING ──
 logging:
   level:
-    com.truyenthuyet: DEBUG
+    com.postwarfolklore: DEBUG
     org.springframework.security: INFO

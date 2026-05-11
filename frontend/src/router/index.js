@@ -48,11 +48,26 @@ const router = createRouter({
 
 // Navigation guard
 router.beforeEach(async (to) => {
-  if (to.meta.requiresAdmin) {
-    const authStore = useAuthStore()
-    if (!authStore.isAdmin) {
-      return { name: 'admin-login' }
-    }
+  const authStore = useAuthStore()
+
+  // Chờ Firebase xác định auth state xong trước khi check quyền
+  if (authStore.loading) {
+    await new Promise(resolve => {
+      const stop = authStore.$subscribe(() => {
+        if (!authStore.loading) { stop(); resolve() }
+      })
+      // Timeout fallback 5s phòng trường hợp subscribe không fire
+      setTimeout(resolve, 5000)
+    })
+  }
+
+  if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    return { name: 'admin-login' }
+  }
+
+  // Nếu đã là admin mà vào trang login → redirect vào dashboard
+  if (to.name === 'admin-login' && authStore.isAdmin) {
+    return { name: 'admin-dashboard' }
   }
 })
 

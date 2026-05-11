@@ -33,6 +33,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/ai/prompt").permitAll()
                 // Public: Chat AI
                 .requestMatchers(HttpMethod.POST, "/api/ai/chat").permitAll()
+                // Setup: cấp quyền admin lần đầu (bảo vệ bằng secret)
+                .requestMatchers(HttpMethod.POST, "/api/setup/admin").permitAll()
                 // Public: POST comment (cả Guest lẫn Auth, phân biệt trong service)
                 .requestMatchers(HttpMethod.POST, "/api/comments/**").permitAll()
                 // Admin only

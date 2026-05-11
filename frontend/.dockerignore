@@ -16,4 +16,4 @@ dist/
 README.md
 Dockerfile
 .dockerignore
-nginx.conf
+# nginx.conf KHÔNG exclude — Dockerfile cần COPY file này vào image

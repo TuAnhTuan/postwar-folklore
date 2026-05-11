@@ -47,14 +47,15 @@ const password  = ref('')
 const loading   = ref(false)
 const error     = ref('')
 
+// Redirect result được xử lý toàn cục trong App.vue
+// AdminLoginView chỉ cần lưu returnTo trước khi redirect
+
 async function loginGoogle() {
   loading.value = true; error.value = ''
-  try {
-    await authStore.loginWithGoogle()
-    if (authStore.isAdmin) router.push('/admin')
-    else error.value = 'Tài khoản này không có quyền Admin.'
-  } catch (e) { error.value = e.message }
-  finally { loading.value = false }
+  // Lưu returnTo để App.vue biết redirect vào /admin sau khi đăng nhập xong
+  sessionStorage.setItem('returnTo', '/admin/login')
+  await authStore.loginWithGoogle()
+  // Browser redirect → không có code nào chạy tiếp
 }
 
 async function loginEmail() {
@@ -62,6 +63,16 @@ async function loginEmail() {
   loading.value = true; error.value = ''
   try {
     await authStore.loginWithEmail(email.value, password.value)
+
+    // Chờ onAuthStateChanged cập nhật isAdmin — check ngay nếu đã xong
+    await new Promise(resolve => {
+      if (!authStore.loading) { resolve(); return }
+      const stop = authStore.$subscribe(() => {
+        if (!authStore.loading) { stop(); resolve() }
+      })
+      setTimeout(resolve, 5000)
+    })
+
     if (authStore.isAdmin) router.push('/admin')
     else error.value = 'Tài khoản này không có quyền Admin.'
   } catch (e) { error.value = 'Email hoặc mật khẩu không đúng.' }

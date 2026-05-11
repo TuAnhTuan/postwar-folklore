@@ -1,7 +1,7 @@
 <template>
   <router-link :to="`/bai-viet/${post.id}`" class="post-card">
     <div class="post-thumb">
-      <img v-if="post.thumbnailUrl" :src="post.thumbnailUrl" :alt="post.title" class="thumb-img" />
+      <img v-if="post.thumbnailUrl" :src="thumbSrc" :alt="post.title" class="thumb-img" />
       <div v-else class="thumb-placeholder" :class="post.type === 'THEORY' ? 'thumb-theory' : 'thumb-legend'">
         <span>{{ post.type === 'THEORY' ? '📜' : '🌙' }}</span>
       </div>
@@ -27,6 +27,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { cloudinaryUrl } from '@/utils/cloudinary'
 
 const props = defineProps({ post: { type: Object, required: true } })
 
@@ -34,6 +35,10 @@ const excerpt = computed(() => {
   const text = props.post.content || ''
   return text.length > 120 ? text.slice(0, 120) + '...' : text
 })
+
+const thumbSrc = computed(() =>
+  cloudinaryUrl(props.post.thumbnailUrl, { w: 600, h: 360 })
+)
 </script>
 
 <style scoped>

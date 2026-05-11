@@ -27,7 +27,7 @@
     <div v-else class="comment-list">
       <div v-for="c in comments" :key="c.id" class="comment-item">
         <div class="comment-header">
-          <div class="comment-avatar">{{ c.displayName[0].toUpperCase() }}</div>
+          <div class="comment-avatar">{{ (c.displayName || '?')[0].toUpperCase() }}</div>
           <div>
             <span class="comment-name">{{ c.displayName }}</span>
             <span v-if="c.isAuthenticated" class="verified-badge">✓</span>
@@ -58,6 +58,7 @@ const submitError = ref('')
 function timeAgo(dateStr) {
   if (!dateStr) return ''
   const diff = Date.now() - new Date(dateStr).getTime()
+  if (isNaN(diff) || diff < 0) return 'Vừa xong'
   const mins = Math.floor(diff / 60000)
   if (mins < 1) return 'Vừa xong'
   if (mins < 60) return `${mins} phút trước`

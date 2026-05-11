@@ -13,8 +13,38 @@
 
     <div class="nav-actions">
       <template v-if="authStore.isLoggedIn">
-        <span class="nav-user">{{ authStore.displayName }}</span>
-        <button class="btn-logout" @click="authStore.logout()">Đăng xuất</button>
+        <!-- Avatar + Dropdown -->
+        <div class="avatar-wrap" @click="showDropdown = !showDropdown" v-click-outside="() => showDropdown = false">
+          <div class="avatar">
+            <img v-if="avatarUrl" :src="avatarUrl" :alt="authStore.displayName" />
+            <span v-else>{{ initials }}</span>
+            <span class="online-dot"></span>
+          </div>
+          <Transition name="dropdown">
+            <div v-if="showDropdown" class="dropdown">
+              <div class="dropdown-user">
+                <div class="dropdown-avatar">
+                  <img v-if="avatarUrl" :src="avatarUrl" :alt="authStore.displayName" />
+                  <span v-else>{{ initials }}</span>
+                  <span class="online-dot"></span>
+                </div>
+                <div class="dropdown-info">
+                  <span class="dropdown-name">{{ authStore.displayName }}</span>
+                  <span class="dropdown-role">{{ authStore.isAdmin ? 'Admin' : 'Thành viên' }}</span>
+                </div>
+              </div>
+              <RouterLink v-if="authStore.isAdmin" to="/admin" class="dropdown-item" @click="showDropdown = false">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                Admin Dashboard
+              </RouterLink>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item" @click="handleLogout">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Đăng xuất
+              </button>
+            </div>
+          </Transition>
+        </div>
       </template>
       <template v-else>
         <button class="btn-login" @click="showLogin = true">Đăng nhập</button>
@@ -52,19 +82,49 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
 
-const authStore  = useAuthStore()
-const showLogin  = ref(false)
-const email      = ref('')
-const password   = ref('')
-const loginError = ref('')
+const authStore    = useAuthStore()
+const router       = useRouter()
+const showLogin    = ref(false)
+const showDropdown = ref(false)
+const email        = ref('')
+const password     = ref('')
+const loginError   = ref('')
+
+const avatarUrl = computed(() => authStore.user?.photoURL || null)
+const initials  = computed(() => {
+  const name = authStore.displayName || ''
+  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+})
+
+// Directive click-outside
+const vClickOutside = {
+  mounted(el, binding) {
+    el._clickOutside = (e) => { if (!el.contains(e.target)) binding.value(e) }
+    document.addEventListener('click', el._clickOutside)
+  },
+  unmounted(el) { document.removeEventListener('click', el._clickOutside) }
+}
+
+async function handleLogout() {
+  showDropdown.value = false
+  await authStore.logout()
+  router.push('/')
+}
 
 async function loginGoogle() {
   loginError.value = ''
-  try { await authStore.loginWithGoogle(); showLogin.value = false }
-  catch (e) { loginError.value = e.message }
+  try {
+    await authStore.loginWithGooglePopup()
+    showLogin.value = false  // đóng modal khi đăng nhập xong
+  } catch (e) {
+    if (e.code !== 'auth/popup-closed-by-user') {
+      loginError.value = 'Đăng nhập Google thất bại: ' + e.message
+    }
+  }
 }
 
 async function loginEmail() {
@@ -92,10 +152,32 @@ async function loginEmail() {
 .nav-links a:hover, .nav-links a.router-link-active { color: var(--accent); }
 .nav-links a:hover::after, .nav-links a.router-link-active::after { transform: scaleX(1); }
 .nav-actions { display: flex; align-items: center; gap: 1rem; }
-.nav-user { font-size: 0.8rem; color: var(--text-secondary); }
-.btn-login, .btn-logout { padding: 7px 20px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: var(--text-secondary); font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; letter-spacing: 0.04em; text-transform: uppercase; }
+.btn-login { padding: 7px 20px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: var(--text-secondary); font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; letter-spacing: 0.04em; text-transform: uppercase; }
 .btn-login:hover { border-color: var(--accent); color: var(--accent); }
-.btn-logout:hover { border-color: #d97272; color: #d97272; }
+
+/* Avatar */
+.avatar-wrap { position: relative; cursor: pointer; }
+.avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #8b2d2d); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: #0a0a0f; overflow: hidden; position: relative; border: 2px solid var(--border); transition: border-color 0.2s; }
+.avatar:hover { border-color: var(--accent); }
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.online-dot { position: absolute; bottom: 1px; right: 1px; width: 9px; height: 9px; background: #4ade80; border-radius: 50%; border: 2px solid var(--bg-secondary); }
+
+/* Dropdown */
+.dropdown { position: absolute; top: calc(100% + 10px); right: 0; min-width: 220px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 16px 48px rgba(0,0,0,0.5); z-index: 200; overflow: hidden; }
+.dropdown-user { display: flex; align-items: center; gap: 12px; padding: 1rem 1.1rem; }
+.dropdown-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #8b2d2d); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: #0a0a0f; overflow: hidden; position: relative; flex-shrink: 0; }
+.dropdown-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.dropdown-avatar .online-dot { bottom: 0; right: 0; }
+.dropdown-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.dropdown-name { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dropdown-role { font-size: 0.72rem; color: var(--accent); font-weight: 500; }
+.dropdown-divider { height: 1px; background: var(--border); }
+.dropdown-item { width: 100%; display: flex; align-items: center; gap: 10px; padding: 0.75rem 1.1rem; background: none; border: none; color: var(--text-secondary); font-size: 0.82rem; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.15s; text-align: left; }
+.dropdown-item:hover { background: rgba(255,255,255,0.04); color: #d97272; }
+
+/* Dropdown animation */
+.dropdown-enter-active, .dropdown-leave-active { transition: all 0.15s ease; }
+.dropdown-enter-from, .dropdown-leave-to { opacity: 0; transform: translateY(-6px) scale(0.98); }
 
 /* Modal */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 2rem; }

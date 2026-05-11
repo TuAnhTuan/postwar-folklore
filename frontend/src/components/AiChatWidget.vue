@@ -18,7 +18,15 @@
       <div class="chat-messages" ref="messagesEl">
         <div v-for="(msg, i) in messages" :key="i" class="chat-msg" :class="msg.role">
           <div class="msg-avatar">{{ msg.role === 'ai' ? '☽' : '👤' }}</div>
-          <div class="msg-bubble">{{ msg.text }}</div>
+          <div class="msg-bubble">
+            <span>{{ msg.text }}</span>
+            <RouterLink
+              v-if="msg.postId"
+              :to="`/bai-viet/${msg.postId}`"
+              class="read-more-link"
+              @click="isOpen = false"
+            >Đọc bài đầy đủ →</RouterLink>
+          </div>
         </div>
         <div v-if="typing" class="chat-msg ai">
           <div class="msg-avatar">☽</div>
@@ -52,6 +60,7 @@
 
 <script setup>
 import { ref, nextTick } from 'vue'
+import { RouterLink } from 'vue-router'
 import api from '@/utils/axios'
 
 const isOpen     = ref(false)
@@ -59,7 +68,7 @@ const inputText  = ref('')
 const typing     = ref(false)
 const messagesEl = ref(null)
 const messages   = ref([
-  { role: 'ai', text: 'Chào mừng ngươi đến với kho lưu trữ. Ta là Dân Gian Mạng — giọng nói của những câu chuyện còn sót lại sau chiến tranh. Ngươi muốn ta kể cho nghe điều gì?' }
+  { role: 'ai', text: 'Chào mừng ngươi đến với kho lưu trữ. Ta là Dân Gian Mạng — giọng nói của những câu chuyện còn sót lại sau chiến tranh. Ngươi muốn ta kể cho nghe điều gì?', postId: null }
 ])
 const suggestions = ref([
   'Kể về Cầu Số 7',
@@ -79,9 +88,18 @@ async function sendMessage(text) {
   typing.value = true
   try {
     const res = await api.post('/ai/chat', { message: msg })
-    messages.value.push({ role: 'ai', text: res.reply || 'Ta không nhận được phản hồi.' })
+    messages.value.push({
+      role: 'ai',
+      text: res.reply || 'Ta không nhận được phản hồi.',
+      postId: res.found ? res.postId : null,
+      postTitle: res.found ? res.postTitle : null
+    })
   } catch (e) {
-    messages.value.push({ role: 'ai', text: 'Ta đang gặp khó khăn trong việc kết nối với kho ký ức. Hãy thử lại sau.' })
+    const status = e?.response?.status
+    const errMsg = status === 429
+      ? 'Ngươi đã hỏi quá nhiều. Hãy chờ một lúc rồi hỏi lại.'
+      : 'Ta đang gặp khó khăn trong việc kết nối với kho ký ức. Hãy thử lại sau.'
+    messages.value.push({ role: 'ai', text: errMsg, postId: null })
   } finally {
     typing.value = false
     await scrollToBottom()
@@ -141,8 +159,10 @@ async function scrollToBottom() {
 .msg-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; flex-shrink: 0; }
 .chat-msg.ai .msg-avatar { background: linear-gradient(135deg, var(--accent), #8b2d2d); border: none; }
 .msg-bubble { max-width: 75%; padding: 10px 13px; border-radius: 12px; font-size: 0.8rem; line-height: 1.55; }
-.chat-msg.ai .msg-bubble { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); border-bottom-left-radius: 3px; }
+.chat-msg.ai .msg-bubble { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); border-bottom-left-radius: 3px; display: flex; flex-direction: column; gap: 8px; }
 .chat-msg.user .msg-bubble { background: rgba(201,169,110,0.15); border: 1px solid rgba(201,169,110,0.2); color: var(--text-primary); border-bottom-right-radius: 3px; }
+.read-more-link { display: inline-block; margin-top: 2px; color: var(--accent); font-size: 0.75rem; font-weight: 600; text-decoration: none; border-top: 1px solid rgba(201,169,110,0.2); padding-top: 6px; transition: opacity 0.2s; letter-spacing: 0.02em; }
+.read-more-link:hover { opacity: 0.75; }
 .typing-bubble { display: flex; gap: 4px; align-items: center; padding: 14px 16px; }
 .typing-bubble span { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: bounce 1.2s ease-in-out infinite; }
 .typing-bubble span:nth-child(2) { animation-delay: 0.2s; }
