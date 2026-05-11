@@ -12,11 +12,11 @@
     <relativePath/>
   </parent>
 
-  <groupId>com.truyenthuyet</groupId>
-  <artifactId>backend</artifactId>
+  <groupId>com.postwarfolklore</groupId>
+  <artifactId>postwar-folklore-backend</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>Truyen Thuyet Hau Chien - Backend</name>
-  <description>RESTful API cho website Truyền Thuyết Hậu Chiến</description>
+  <name>Postwar Folklore - Backend</name>
+  <description>RESTful API for the Postwar Folklore website</description>
   <packaging>jar</packaging>
 
   <properties>

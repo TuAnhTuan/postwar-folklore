@@ -4,12 +4,12 @@
 services:
   # ── 1. SPRING BOOT BACKEND (Web Service) ──
   - type: web
-    name: truyen-thuyet-backend
+    name: postwar-folklore-backend
     runtime: java
     plan: free
     rootDir: backend
-    buildCommand: ./mvnw clean package -DskipTests
-    startCommand: java -jar target/backend-0.0.1-SNAPSHOT.jar
+    buildCommand: mvn clean package -DskipTests
+    startCommand: java -jar target/postwar-folklore-backend-0.0.1-SNAPSHOT.jar
     healthCheckPath: /api/posts?page=0&size=1
     envVars:
       - key: SPRING_PROFILES_ACTIVE
@@ -19,15 +19,15 @@ services:
       # Database (tự động được set bởi Render khi link database)
       - key: DATABASE_URL
         fromDatabase:
-          name: truyen-thuyet-db
+          name: postwar-folklore-db
           property: connectionString
       - key: DATABASE_USERNAME
         fromDatabase:
-          name: truyen-thuyet-db
+          name: postwar-folklore-db
           property: user
       - key: DATABASE_PASSWORD
         fromDatabase:
-          name: truyen-thuyet-db
+          name: postwar-folklore-db
           property: password
       # Các key bên dưới phải set thủ công trong Render Dashboard
       - key: FIREBASE_SERVICE_ACCOUNT_JSON
@@ -41,11 +41,11 @@ services:
       - key: GEMINI_API_KEY
         sync: false
       - key: CORS_ALLOWED_ORIGINS
-        sync: false   # VD: https://truyen-thuyet-frontend.onrender.com
+        sync: false   # VD: https://postwar-folklore-frontend.onrender.com
 
   # ── 2. VUE.JS FRONTEND (Static Site) ──
   - type: web
-    name: truyen-thuyet-frontend
+    name: postwar-folklore-frontend
     runtime: static
     plan: free
     rootDir: frontend
@@ -62,7 +62,7 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_BASE_URL
-        sync: false   # VD: https://truyen-thuyet-backend.onrender.com/api
+        sync: false   # VD: https://postwar-folklore-backend.onrender.com/api
       - key: VITE_FIREBASE_API_KEY
         sync: false
       - key: VITE_FIREBASE_AUTH_DOMAIN
@@ -78,8 +78,8 @@ services:
 
 # ── 3. POSTGRESQL DATABASE ──
 databases:
-  - name: truyen-thuyet-db
+  - name: postwar-folklore-db
     plan: free
-    databaseName: truyenthuyet
-    user: truyenthuyet_user
+    databaseName: postwarfolklore
+    user: pwf_user
     # LƯU Ý: Render Free PostgreSQL tự xóa sau 90 ngày — backup trước khi demo!

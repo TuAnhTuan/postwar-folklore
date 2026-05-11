@@ -1,0 +1,125 @@
+name: postwar-folklore
+
+services:
+
+  # ─────────────────────────────────────────
+  # POSTGRESQL DATABASE
+  # ─────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: pwf-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       ${POSTGRES_DB:-postwarfolklore}
+      POSTGRES_USER:     ${POSTGRES_USER:-pwf_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"          # expose ra ngoài để dùng pgAdmin / DBeaver local
+    networks:
+      - pwf-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pwf_user} -d ${POSTGRES_DB:-postwarfolklore}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ─────────────────────────────────────────
+  # SPRING BOOT BACKEND
+  # ─────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pwf-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy    # chờ postgres sẵn sàng mới start
+    environment:
+      # Database — kết nối vào postgres container qua internal network
+      DATABASE_URL:      jdbc:postgresql://postgres:5432/${POSTGRES_DB:-postwarfolklore}
+      DATABASE_USERNAME: ${POSTGRES_USER:-pwf_user}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+
+      # Firebase
+      FIREBASE_SERVICE_ACCOUNT_JSON: ${FIREBASE_SERVICE_ACCOUNT_JSON:-}
+      FIREBASE_SERVICE_ACCOUNT_PATH: ${FIREBASE_SERVICE_ACCOUNT_PATH:-}
+
+      # Cloudinary
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-}
+      CLOUDINARY_API_KEY:    ${CLOUDINARY_API_KEY:-}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
+
+      # AI
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+
+      # CORS — cho phép frontend container gọi vào
+      CORS_ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:80,http://frontend"
+
+      # Spring profile
+      SPRING_PROFILES_ACTIVE: docker
+
+      PORT: 8080
+
+    ports:
+      - "8080:8080"           # expose để test API trực tiếp (Postman, curl)
+    networks:
+      - pwf-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/posts?page=0&size=1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s       # Spring Boot cần ~30-60s để khởi động
+    # Mount firebase credentials file nếu dùng file thay vì JSON string
+    volumes:
+      - ${FIREBASE_SERVICE_ACCOUNT_PATH:-/dev/null}:/app/firebase-service-account.json:ro
+
+  # ─────────────────────────────────────────
+  # VUE.JS FRONTEND (Nginx)
+  # ─────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Biến VITE_ được bake vào lúc build → phải truyền qua ARG
+        VITE_API_BASE_URL:                  /api
+        VITE_FIREBASE_API_KEY:              ${VITE_FIREBASE_API_KEY:-}
+        VITE_FIREBASE_AUTH_DOMAIN:          ${VITE_FIREBASE_AUTH_DOMAIN:-}
+        VITE_FIREBASE_PROJECT_ID:           ${VITE_FIREBASE_PROJECT_ID:-}
+        VITE_FIREBASE_STORAGE_BUCKET:       ${VITE_FIREBASE_STORAGE_BUCKET:-}
+        VITE_FIREBASE_MESSAGING_SENDER_ID:  ${VITE_FIREBASE_MESSAGING_SENDER_ID:-}
+        VITE_FIREBASE_APP_ID:               ${VITE_FIREBASE_APP_ID:-}
+    container_name: pwf-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"             # truy cập web tại http://localhost:3000
+    networks:
+      - pwf-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:80/ | grep -q 'Postwar Folklore' || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+# ─────────────────────────────────────────
+# VOLUMES
+# ─────────────────────────────────────────
+volumes:
+  postgres_data:
+    name: pwf-postgres-data    # đặt tên cố định để dễ backup
+
+# ─────────────────────────────────────────
+# NETWORKS
+# ─────────────────────────────────────────
+networks:
+  pwf-network:
+    name: pwf-network
+    driver: bridge

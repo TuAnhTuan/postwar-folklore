@@ -1,0 +1,27 @@
+# Loại bỏ các file không cần thiết khỏi Docker build context
+# Giúp build nhanh hơn và image nhỏ hơn
+
+target/
+*.log
+logs/
+
+.git/
+.github/
+.gitignore
+
+.idea/
+.vscode/
+*.iml
+
+.env
+.env.*
+!.env.example
+
+# Firebase credentials (KHÔNG bao giờ copy vào image)
+*service-account*.json
+firebase-credentials.json
+firebase-adminsdk*.json
+
+README.md
+Dockerfile
+.dockerignore
