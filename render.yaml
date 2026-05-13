@@ -44,7 +44,6 @@ services:
   - type: web
     name: postwar-folklore-frontend
     runtime: static
-    plan: free
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
@@ -76,7 +75,7 @@ services:
 # ── 3. POSTGRESQL DATABASE ──
 databases:
   - name: postwar-folklore-db
-    plan: free
+    plan: starter
     databaseName: postwarfolklore
     user: pwf_user
     # LƯU Ý: Render Free PostgreSQL tự xóa sau 90 ngày — backup trước khi demo!
