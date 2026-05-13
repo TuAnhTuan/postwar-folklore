@@ -16,14 +16,15 @@ spring:
       initialization-fail-timeout: 0   # Cho phép app start kể cả khi DB chưa sẵn sàng
 
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: none                          # Không chạy DDL lúc startup — tránh crash khi DB chưa sẵn sàng
+      ddl-auto: none
     defer-datasource-initialization: true
     show-sql: false
     properties:
       hibernate:
         boot:
-          allow_jdbc_metadata_access: false   # Không kết nối DB để detect metadata khi khởi tạo
+          allow_jdbc_metadata_access: false
 
   sql:
     init:
