@@ -21,26 +21,14 @@ RUN mvn clean package -DskipTests -B --no-transfer-progress
 # ════════════════════════════════════════════════════════
 FROM eclipse-temurin:21-jre-jammy AS runtime
 
-# Tạo user non-root để tăng security
-RUN groupadd -r appgroup && useradd -r -g appgroup appuser
-
 WORKDIR /app
 
-# Copy JAR từ stage builder
 COPY --from=builder /app/target/*.jar app.jar
 
-# Đổi owner
-RUN chown appuser:appgroup app.jar
-
-USER appuser
-
-# Port mà Spring Boot lắng nghe
 EXPOSE 8080
 
-# JVM tuning cho container (tránh dùng hết RAM)
-ENV JAVA_OPTS="-XX:+UseContainerSupport \
-               -XX:MaxRAMPercentage=75.0 \
-               -XX:+ExitOnOutOfMemoryError \
-               -Djava.security.egd=file:/dev/./urandom"
-
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+ENTRYPOINT ["java", \
+  "-XX:+UseContainerSupport", \
+  "-XX:MaxRAMPercentage=75.0", \
+  "-Djava.security.egd=file:/dev/./urandom", \
+  "-jar", "app.jar"]
