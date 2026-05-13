@@ -10,10 +10,12 @@ spring:
     hikari:
       maximum-pool-size: 3
       connection-timeout: 30000
+      initialization-fail-timeout: 0   # Cho phép app start kể cả khi DB chưa sẵn sàng
 
   jpa:
     hibernate:
-      ddl-auto: update          # Dùng 'validate' khi production ổn định
+      ddl-auto: update
+    defer-datasource-initialization: true   # Delay DB init sau khi context load xong
     show-sql: false
     properties:
       hibernate:
