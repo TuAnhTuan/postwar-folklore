@@ -19,10 +19,10 @@ RUN mvn clean package -DskipTests -B --no-transfer-progress
 # STAGE 2 — RUNTIME
 # Dùng JRE slim (không cần full JDK khi chạy)
 # ════════════════════════════════════════════════════════
-FROM eclipse-temurin:21-jre-alpine AS runtime
+FROM eclipse-temurin:21-jre-jammy AS runtime
 
 # Tạo user non-root để tăng security
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
 WORKDIR /app
 
