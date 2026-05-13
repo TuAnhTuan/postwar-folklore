@@ -2,6 +2,9 @@ spring:
   application:
     name: postwar-folklore
 
+  main:
+    lazy-initialization: true   # Defer bean creation → app bind port trước, kết nối DB sau
+
   datasource:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/truyenthuyet}
     username: ${DATABASE_USERNAME:postgres}
