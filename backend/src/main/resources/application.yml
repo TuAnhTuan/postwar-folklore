@@ -16,17 +16,19 @@ spring:
       initialization-fail-timeout: 0   # Cho phép app start kể cả khi DB chưa sẵn sàng
 
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: none                          # Không chạy DDL lúc startup — tránh crash khi DB chưa sẵn sàng
     defer-datasource-initialization: true
     show-sql: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-        temp:
-          use_jdbc_metadata_defaults: false   # Tắt auto-detect metadata — tránh NPE Hibernate 6.x
+        boot:
+          allow_jdbc_metadata_access: false   # Không kết nối DB để detect metadata khi khởi tạo
+
+  sql:
+    init:
+      mode: always                            # Chạy schema.sql mỗi lần start
+      continue-on-error: true                 # Không crash nếu DB chưa sẵn sàng
 
   jackson:
     default-property-inclusion: non_null
