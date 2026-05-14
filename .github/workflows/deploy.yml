@@ -7,10 +7,6 @@ on:
       - 'backend/**'
       - '.github/workflows/deploy.yml'
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/postwar-folklore-backend
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -21,6 +17,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set lowercase image name
+        id: image
+        run: echo "name=ghcr.io/$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')/postwar-folklore-backend:latest" >> $GITHUB_OUTPUT
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -37,6 +37,6 @@ jobs:
         with:
           context: ./backend
           push: true
-          tags: ghcr.io/${{ env.IMAGE_NAME }}:latest
-          cache-from: type=gha        # Cache layer giữa các lần build
+          tags: ${{ steps.image.outputs.name }}
+          cache-from: type=gha
           cache-to: type=gha,mode=max
