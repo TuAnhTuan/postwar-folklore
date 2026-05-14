@@ -8,12 +8,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import jakarta.annotation.PostConstruct;
+import org.springframework.context.annotation.Lazy;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 @Configuration
+@Lazy(false)   // Buộc init sớm dù spring.main.lazy-initialization=true
 @Slf4j
 public class FirebaseConfig {
 

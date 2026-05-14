@@ -12,13 +12,13 @@ CREATE TABLE IF NOT EXISTS posts (
 );
 
 CREATE TABLE IF NOT EXISTS comments (
-    id           BIGSERIAL    PRIMARY KEY,
-    post_id      UUID         NOT NULL,
+    id           BIGSERIAL                PRIMARY KEY,
+    post_id      UUID                     NOT NULL,
     user_uid     VARCHAR(128),
-    display_name VARCHAR(100) NOT NULL,
-    content      TEXT         NOT NULL,
-    status       VARCHAR(50)  DEFAULT 'APPROVED',
-    created_at   TIMESTAMP    DEFAULT now()
+    display_name VARCHAR(100)             NOT NULL,
+    content      TEXT                     NOT NULL,
+    status       VARCHAR(50)              DEFAULT 'APPROVED',
+    created_at   TIMESTAMP WITH TIME ZONE DEFAULT now()  -- Instant → timestamptz
 );
 
 CREATE TABLE IF NOT EXISTS system_prompts (
