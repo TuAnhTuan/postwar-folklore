@@ -14,12 +14,15 @@ public class PostwarFolkloreApplication {
     @Value("${spring.servlet.multipart.max-file-size}")
     private String maxFileSize;
 
+    @Value("${server.tomcat.max-http-form-post-size}")
+    private String maxFormPostSize;
+
     public static void main(String[] args) {
         SpringApplication.run(PostwarFolkloreApplication.class, args);
     }
 
     @EventListener(ApplicationReadyEvent.class)
     public void onReady() {
-        log.info("App started — max-file-size={}", maxFileSize);
+        log.info("App started — max-file-size={}, tomcat-max-form-post-size={}", maxFileSize, maxFormPostSize);
     }
 }

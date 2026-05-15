@@ -159,10 +159,11 @@ async function submitPost() {
     if (form.value.author) fd.append('author', form.value.author)
     if (form.value.thumbnail) fd.append('thumbnail', form.value.thumbnail)
 
+    const uploadConfig = { timeout: 120000 }
     if (editingId.value) {
-      await api.put(`/admin/posts/${editingId.value}`, fd)
+      await api.put(`/admin/posts/${editingId.value}`, fd, uploadConfig)
     } else {
-      await api.post('/admin/posts', fd)
+      await api.post('/admin/posts', fd, uploadConfig)
     }
 
     closeForm()
