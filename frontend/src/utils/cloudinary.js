@@ -1,12 +1,24 @@
-/**
- * Thêm Cloudinary transformation vào URL để resize/crop server-side.
- * @param {string} url - URL gốc từ Cloudinary
- * @param {object} opts
- * @param {number} opts.w - width (px)
- * @param {number} opts.h - height (px)
- * @param {string} opts.crop - chế độ crop: 'fill' | 'fit' | 'scale' (default: 'fill')
- * @param {boolean} opts.gravity - dùng g_auto (smart crop) hay không (default: true)
- */
+const CLOUD_NAME   = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
+const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
+
+export async function uploadToCloudinary(file) {
+  const fd = new FormData()
+  fd.append('file', file)
+  fd.append('upload_preset', UPLOAD_PRESET)
+  fd.append('folder', 'truyen-thuyet-hau-chien')
+
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+    method: 'POST',
+    body: fd
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.error?.message || 'Cloudinary upload failed')
+  }
+  const data = await res.json()
+  return data.secure_url
+}
+
 export function cloudinaryUrl(url, { w, h, crop = 'fill', gravity = true } = {}) {
   if (!url || !url.includes('cloudinary.com')) return url
 
