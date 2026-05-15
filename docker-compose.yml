@@ -12,26 +12,26 @@ services:
   # ─────────────────────────────────────────
   # POSTGRESQL DATABASE
   # ─────────────────────────────────────────
-  postgres:
-    image: postgres:16-alpine
-    container_name: pwf-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB:       ${POSTGRES_DB:-postwarfolklore}
-      POSTGRES_USER:     ${POSTGRES_USER:-literature}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pwd@12345}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5433:5432"   # 5432 local bị chiếm → expose ra ngoài qua 5433          # expose ra ngoài để dùng pgAdmin / DBeaver local
-    networks:
-      - pwf-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-literature} -d ${POSTGRES_DB:-postwarfolklore}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
+  # postgres:
+  #   image: postgres:16-alpine
+  #   container_name: pwf-postgres
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_DB:       ${POSTGRES_DB:-postwarfolklore}
+  #     POSTGRES_USER:     ${POSTGRES_USER:-literature}
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pwd@12345}
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5433:5432"   # 5432 local bị chiếm → expose ra ngoài qua 5433          # expose ra ngoài để dùng pgAdmin / DBeaver local
+  #   networks:
+  #     - pwf-network
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-literature} -d ${POSTGRES_DB:-postwarfolklore}"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 10s
 
   # ─────────────────────────────────────────
   # SPRING BOOT BACKEND
@@ -42,12 +42,9 @@ services:
       dockerfile: Dockerfile
     container_name: pwf-backend
     restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy    # chờ postgres sẵn sàng mới start
     environment:
-      # Database — kết nối vào postgres container qua internal network
-      DATABASE_URL:      jdbc:postgresql://postgres:5432/${POSTGRES_DB:-postwarfolklore}
+      # Database — trỏ tới external DB (Render PostgreSQL hoặc local)
+      DATABASE_URL:      ${DATABASE_URL:-jdbc:postgresql://localhost:5432/postwarfolklore}
       DATABASE_USERNAME: ${POSTGRES_USER:-literature}
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-pwd@12345}
 
@@ -105,6 +102,8 @@ services:
         VITE_FIREBASE_STORAGE_BUCKET:       ${VITE_FIREBASE_STORAGE_BUCKET:-}
         VITE_FIREBASE_MESSAGING_SENDER_ID:  ${VITE_FIREBASE_MESSAGING_SENDER_ID:-}
         VITE_FIREBASE_APP_ID:               ${VITE_FIREBASE_APP_ID:-}
+        VITE_CLOUDINARY_CLOUD_NAME:         ${VITE_CLOUDINARY_CLOUD_NAME:-}
+        VITE_CLOUDINARY_UPLOAD_PRESET:      ${VITE_CLOUDINARY_UPLOAD_PRESET:-}
     container_name: pwf-frontend
     restart: unless-stopped
     depends_on:
@@ -122,9 +121,7 @@ services:
 # ─────────────────────────────────────────
 # VOLUMES
 # ─────────────────────────────────────────
-volumes:
-  postgres_data:
-    name: pwf-postgres-data    # đặt tên cố định để dễ backup
+volumes: {}
 
 # ─────────────────────────────────────────
 # NETWORKS

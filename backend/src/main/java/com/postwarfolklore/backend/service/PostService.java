@@ -1,7 +1,5 @@
 package com.postwarfolklore.backend.service;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 import com.postwarfolklore.backend.dto.PostDTO;
 import com.postwarfolklore.backend.model.Comment;
 import com.postwarfolklore.backend.model.Post;
@@ -12,10 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -26,7 +21,6 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
-    private final Cloudinary cloudinary;
 
     public Page<PostDTO> getAllPosts(Pageable pageable) {
         return postRepository.findAllByOrderByCreatedAtDesc(pageable)
@@ -45,8 +39,7 @@ public class PostService {
     }
 
     public PostDTO createPost(String title, String content, Post.PostType type,
-                               String author, MultipartFile thumbnail) {
-        String thumbnailUrl = uploadImage(thumbnail);
+                               String author, String thumbnailUrl) {
         Post post = Post.builder()
             .title(title)
             .content(content)
@@ -58,16 +51,14 @@ public class PostService {
     }
 
     public PostDTO updatePost(UUID id, String title, String content,
-                               String author, MultipartFile thumbnail) {
+                               String author, String thumbnailUrl) {
         Post post = postRepository.findById(id)
             .orElseThrow(() -> new NoSuchElementException("Post not found: " + id));
 
         if (title != null) post.setTitle(title);
         if (content != null) post.setContent(content);
         if (author != null) post.setAuthor(author);
-        if (thumbnail != null && !thumbnail.isEmpty()) {
-            post.setThumbnailUrl(uploadImage(thumbnail));
-        }
+        if (thumbnailUrl != null) post.setThumbnailUrl(thumbnailUrl);
         return toDTO(postRepository.save(post));
     }
 
@@ -75,24 +66,10 @@ public class PostService {
         postRepository.deleteById(id);
     }
 
-    // ── HELPERS ──
-
     private PostDTO toDTO(Post post) {
         long commentCount = commentRepository.countByPostIdAndStatus(
             post.getId(), Comment.CommentStatus.APPROVED
         );
         return PostDTO.from(post, commentCount);
-    }
-
-    private String uploadImage(MultipartFile file) {
-        if (file == null || file.isEmpty()) return null;
-        try {
-            Map<?, ?> result = cloudinary.uploader().upload(file.getBytes(),
-                ObjectUtils.asMap("folder", "truyen-thuyet-hau-chien"));
-            return (String) result.get("secure_url");
-        } catch (IOException e) {
-            log.error("Cloudinary upload failed", e);
-            throw new RuntimeException("Image upload failed", e);
-        }
     }
 }

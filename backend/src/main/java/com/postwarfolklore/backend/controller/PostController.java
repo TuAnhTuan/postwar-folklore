@@ -10,8 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.util.UUID;
 
 @RestController
@@ -56,9 +54,9 @@ public class PostController {
         @RequestParam String content,
         @RequestParam Post.PostType type,
         @RequestParam(required = false) String author,
-        @RequestParam(required = false) MultipartFile thumbnail
+        @RequestParam(required = false) String thumbnailUrl
     ) {
-        return ResponseEntity.ok(postService.createPost(title, content, type, author, thumbnail));
+        return ResponseEntity.ok(postService.createPost(title, content, type, author, thumbnailUrl));
     }
 
     @PutMapping("/admin/posts/{id}")
@@ -68,9 +66,9 @@ public class PostController {
         @RequestParam(required = false) String title,
         @RequestParam(required = false) String content,
         @RequestParam(required = false) String author,
-        @RequestParam(required = false) MultipartFile thumbnail
+        @RequestParam(required = false) String thumbnailUrl
     ) {
-        return ResponseEntity.ok(postService.updatePost(id, title, content, author, thumbnail));
+        return ResponseEntity.ok(postService.updatePost(id, title, content, author, thumbnailUrl));
     }
 
     @DeleteMapping("/admin/posts/{id}")

@@ -95,6 +95,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '@/utils/axios'
+import { uploadToCloudinary } from '@/utils/cloudinary'
 
 const activeTab    = ref('posts')
 const showForm     = ref(false)
@@ -152,18 +153,23 @@ function closeForm() {
 async function submitPost() {
   submitting.value = true; formError.value = ''
   try {
-    const fd = new FormData()
-    fd.append('title', form.value.title)
-    fd.append('content', form.value.content)
-    fd.append('type', form.value.type)
-    if (form.value.author) fd.append('author', form.value.author)
-    if (form.value.thumbnail) fd.append('thumbnail', form.value.thumbnail)
+    let thumbnailUrl = null
+    if (form.value.thumbnail) {
+      thumbnailUrl = await uploadToCloudinary(form.value.thumbnail)
+    }
 
-    const uploadConfig = { timeout: 120000 }
+    const params = new URLSearchParams({
+      title: form.value.title,
+      content: form.value.content,
+      type: form.value.type,
+    })
+    if (form.value.author) params.append('author', form.value.author)
+    if (thumbnailUrl) params.append('thumbnailUrl', thumbnailUrl)
+
     if (editingId.value) {
-      await api.put(`/admin/posts/${editingId.value}`, fd, uploadConfig)
+      await api.put(`/admin/posts/${editingId.value}`, params)
     } else {
-      await api.post('/admin/posts', fd, uploadConfig)
+      await api.post('/admin/posts', params)
     }
 
     closeForm()
