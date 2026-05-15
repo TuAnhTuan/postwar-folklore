@@ -160,9 +160,9 @@ async function submitPost() {
     if (form.value.thumbnail) fd.append('thumbnail', form.value.thumbnail)
 
     if (editingId.value) {
-      await api.put(`/admin/posts/${editingId.value}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+      await api.put(`/admin/posts/${editingId.value}`, fd)
     } else {
-      await api.post('/admin/posts', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+      await api.post('/admin/posts', fd)
     }
 
     closeForm()
