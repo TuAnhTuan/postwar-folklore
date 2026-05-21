@@ -59,7 +59,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import api from '@/utils/axios'
 
@@ -68,13 +68,51 @@ const inputText  = ref('')
 const typing     = ref(false)
 const messagesEl = ref(null)
 const messages   = ref([
-  { role: 'ai', text: 'Chào mừng ngươi đến với kho lưu trữ. Ta là Dân Gian Mạng — giọng nói của những câu chuyện còn sót lại sau chiến tranh. Ngươi muốn ta kể cho nghe điều gì?', postId: null }
+  { role: 'ai', text: 'Xin chào! Mình là Dân Gian Mạng 👋\nMình có thể giúp bạn khám phá các truyền thuyết và câu chuyện hậu chiến. Bạn muốn tìm hiểu về điều gì?', postId: null }
 ])
-const suggestions = ref([
-  'Kể về Cầu Số 7',
-  'Dân gian mạng là gì?',
-  'Truyền thuyết nổi tiếng nhất'
-])
+const suggestions = ref([])
+
+// Template câu hỏi theo type bài viết
+const templatesByType = {
+  'LEGEND': [
+    t => `Truyền thuyết "${t}" kể về điều gì?`,
+    t => `Nguồn gốc của "${t}" là gì?`,
+    t => `"${t}" có thật không?`,
+    t => `Dân gian lưu truyền gì về "${t}"?`,
+  ],
+  'THEORY': [
+    t => `Giả thuyết "${t}" nói về điều gì?`,
+    t => `"${t}" có cơ sở không?`,
+    t => `Bí ẩn đằng sau "${t}" là gì?`,
+    t => `Tại sao người ta tin vào "${t}"?`,
+  ],
+}
+
+const defaultTemplates = [
+  t => `"${t}" — câu chuyện đằng sau là gì?`,
+  t => `Bí ẩn nào ẩn sau "${t}"?`,
+  t => `Hãy kể tôi nghe về "${t}"`,
+  t => `"${t}" có liên quan đến chiến tranh không?`,
+  t => `Dân gian lưu truyền gì về "${t}"?`,
+]
+
+function buildSuggestion(post) {
+  const pool = templatesByType[post.type] ?? defaultTemplates
+  const fn = pool[Math.floor(Math.random() * pool.length)]
+  return fn(post.title)
+}
+
+// Khi mở chat, lấy 3 bài mới nhất làm gợi ý
+watch(isOpen, async (opened) => {
+  if (!opened || suggestions.value.length > 0) return
+  try {
+    const res = await api.get('/posts', { params: { page: 0, size: 3, sort: 'createdAt,desc' } })
+    const posts = res.content ?? res
+    suggestions.value = posts.map(p => buildSuggestion(p))
+  } catch {
+    suggestions.value = ['Truyền thuyết hậu chiến là gì?', 'Bí ẩn nào còn sót lại sau chiến tranh?']
+  }
+})
 
 async function sendMessage(text) {
   const msg = text || inputText.value.trim()
