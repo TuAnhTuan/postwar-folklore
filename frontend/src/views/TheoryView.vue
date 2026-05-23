@@ -2,8 +2,8 @@
   <main class="page">
     <div class="page-header">
       <div class="section-label">Nghiên cứu &amp; học thuật</div>
-      <h1 class="page-title">Lý thuyết hậu chiến</h1>
-      <p class="page-desc">Những phân tích và lý thuyết về thế giới quan hậu chiến.</p>
+      <h1 class="page-title">Dẫn nhập truyền thuyết hậu chiến</h1>
+      <p class="page-desc">Những lối đọc để bước vào truyền thuyết hậu chiến.</p>
     </div>
 
     <div class="content-area">

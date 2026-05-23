@@ -8,8 +8,8 @@
     <ul class="nav-links">
       <li><router-link to="/">Trang chủ</router-link></li>
       <li><router-link to="/ve-hoai-tu">Về Hoài tự</router-link></li>
-      <li><router-link to="/ly-thuyet">Lý thuyết</router-link></li>
-      <li><router-link to="/truyen-thuyet">Truyền thuyết</router-link></li>
+      <li><router-link to="/ly-thuyet">Nếp nghĩ</router-link></li>
+      <li><router-link to="/truyen-thuyet">Lời kể</router-link></li>
     </ul>
 
     <div class="nav-actions">

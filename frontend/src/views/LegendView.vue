@@ -3,7 +3,7 @@
     <div class="page-header">
       <div class="section-label legend-label">Dân gian mạng</div>
       <h1 class="page-title">Truyền thuyết hậu chiến</h1>
-      <p class="page-desc">Những câu chuyện được truyền đi qua sóng radio, bit và ký ức tập thể.</p>
+      <p class="page-desc">Những câu chuyện được truyền đi qua lời kể, ký ức tập thể và không gian số.</p>
     </div>
 
     <div class="content-area">
