@@ -1,14 +1,15 @@
 <template>
   <!-- Toggle Button -->
   <button class="chat-toggle" @click="isOpen = !isOpen" :title="isOpen ? 'Đóng chat' : 'Nói chuyện với Dân Gian Mạng'">
-    {{ isOpen ? '✕' : '☽' }}
+    <img v-if="!isOpen" src="/logo-dan-gian-mang.png" alt="Dân Gian Mạng" class="toggle-logo" />
+    <span v-else>✕</span>
   </button>
 
   <!-- Chat Widget -->
   <Transition name="chat">
     <div v-if="isOpen" class="chat-widget">
       <div class="chat-header">
-        <div class="ai-avatar">☽</div>
+        <div class="ai-avatar"><img src="/logo-dan-gian-mang.png" alt="Dân Gian Mạng" /></div>
         <div class="ai-info">
           <div class="ai-name">Dân Gian Mạng</div>
           <div class="ai-status"><span class="status-dot"></span>Đang hoạt động</div>
@@ -17,7 +18,10 @@
 
       <div class="chat-messages" ref="messagesEl">
         <div v-for="(msg, i) in messages" :key="i" class="chat-msg" :class="msg.role">
-          <div class="msg-avatar">{{ msg.role === 'ai' ? '☽' : '👤' }}</div>
+          <div class="msg-avatar">
+            <img v-if="msg.role === 'ai'" src="/logo-dan-gian-mang.png" alt="Dân Gian Mạng" />
+            <span v-else>👤</span>
+          </div>
           <div class="msg-bubble">
             <span>{{ msg.text }}</span>
             <RouterLink
@@ -29,7 +33,7 @@
           </div>
         </div>
         <div v-if="typing" class="chat-msg ai">
-          <div class="msg-avatar">☽</div>
+          <div class="msg-avatar"><img src="/logo-dan-gian-mang.png" alt="Dân Gian Mạng" /></div>
           <div class="msg-bubble typing-bubble">
             <span></span><span></span><span></span>
           </div>
@@ -68,7 +72,7 @@ const inputText  = ref('')
 const typing     = ref(false)
 const messagesEl = ref(null)
 const messages   = ref([
-  { role: 'ai', text: 'Xin chào! Mình là Dân Gian Mạng 👋\nMình có thể giúp bạn khám phá các truyền thuyết và câu chuyện hậu chiến. Bạn muốn tìm hiểu về điều gì?', postId: null }
+  { role: 'ai', text: 'Vậy là bạn vừa ghé nhà Hoài tự rồi đó! 🌙\nMình là Dân Gian Mạng, người bạn nhỏ sẽ cùng bạn lần theo những lời kể hậu chiến.\nBạn muốn bắt đầu từ đâu?', postId: null }
 ])
 const suggestions = ref([])
 
@@ -156,15 +160,18 @@ async function scrollToBottom() {
 .chat-toggle {
   position: fixed; bottom: 2rem; right: 2rem; z-index: 150;
   width: 56px; height: 56px;
-  background: linear-gradient(135deg, var(--accent), #8b2d2d);
-  border: none; border-radius: 50%; cursor: pointer;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border); border-radius: 50%; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.4rem;
-  box-shadow: 0 8px 24px rgba(201,169,110,0.3);
+  font-size: 1.2rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
   transition: all 0.3s;
-  color: white;
+  color: var(--text-secondary);
+  overflow: hidden;
+  padding: 0;
 }
-.chat-toggle:hover { transform: scale(1.1); box-shadow: 0 12px 32px rgba(201,169,110,0.4); }
+.chat-toggle:hover { transform: scale(1.1); box-shadow: 0 12px 32px rgba(201,169,110,0.3); border-color: var(--accent); }
+.toggle-logo { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
 .chat-widget {
   position: fixed; bottom: 6rem; right: 2rem; z-index: 150;
@@ -181,7 +188,8 @@ async function scrollToBottom() {
 .chat-enter-from, .chat-leave-to { opacity: 0; transform: translateY(20px) scale(0.95); }
 
 .chat-header { padding: 1rem 1.2rem; background: var(--bg-card); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
-.ai-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #8b2d2d); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+.ai-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--bg-secondary); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
+.ai-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .ai-info { flex: 1; }
 .ai-name { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); }
 .ai-status { font-size: 0.7rem; color: var(--accent); display: flex; align-items: center; gap: 4px; }
@@ -194,8 +202,9 @@ async function scrollToBottom() {
 
 .chat-msg { display: flex; gap: 8px; align-items: flex-end; }
 .chat-msg.user { flex-direction: row-reverse; }
-.msg-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; flex-shrink: 0; }
-.chat-msg.ai .msg-avatar { background: linear-gradient(135deg, var(--accent), #8b2d2d); border: none; }
+.msg-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; flex-shrink: 0; overflow: hidden; }
+.msg-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.chat-msg.ai .msg-avatar { background: var(--bg-secondary); border-color: var(--border); }
 .msg-bubble { max-width: 75%; padding: 10px 13px; border-radius: 12px; font-size: 0.8rem; line-height: 1.55; }
 .chat-msg.ai .msg-bubble { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); border-bottom-left-radius: 3px; display: flex; flex-direction: column; gap: 8px; }
 .chat-msg.user .msg-bubble { background: rgba(201,169,110,0.15); border: 1px solid rgba(201,169,110,0.2); color: var(--text-primary); border-bottom-right-radius: 3px; }

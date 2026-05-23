@@ -1,12 +1,13 @@
 <template>
   <nav class="navbar">
     <router-link to="/" class="nav-logo">
-      <div class="logo-icon">⚔</div>
-      <span class="logo-text">Truyền Thuyết Hậu Chiến</span>
+      <img src="/logo-hoai-tu.png" alt="Hoài tự" class="logo-img" />
+      <span class="logo-text">Hoài tự</span>
     </router-link>
 
     <ul class="nav-links">
       <li><router-link to="/">Trang chủ</router-link></li>
+      <li><router-link to="/ve-hoai-tu">Về Hoài tự</router-link></li>
       <li><router-link to="/ly-thuyet">Lý thuyết</router-link></li>
       <li><router-link to="/truyen-thuyet">Truyền thuyết</router-link></li>
     </ul>
@@ -143,9 +144,9 @@ async function loginEmail() {
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
 }
-.nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-.logo-icon { width: 34px; height: 34px; background: linear-gradient(135deg, var(--accent), #8b2d2d); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-.logo-text { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; color: var(--accent); }
+.nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+.logo-img { width: 34px; height: 34px; border-radius: 6px; object-fit: cover; }
+.logo-text { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
 .nav-links { display: flex; gap: 2rem; list-style: none; }
 .nav-links a { text-decoration: none; color: var(--text-secondary); font-size: 0.875rem; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; transition: color 0.2s; position: relative; padding-bottom: 4px; }
 .nav-links a::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: var(--accent); transform: scaleX(0); transition: transform 0.2s; }

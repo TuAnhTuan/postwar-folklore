@@ -5,19 +5,47 @@
       <div class="hero-content">
         <div class="hero-badge">
           <span class="badge-dot"></span>
-          Kho lưu trữ dân gian mạng · Thời kỳ hậu nhân loại
+          KHO LƯU GIỮ LỜI KỂ · KÝ ỨC HẬU CHIẾN
         </div>
         <h1 class="hero-title">
-          <span>Những Câu Chuyện</span>
-          <span class="gradient-text">Truyền Thuyết Hậu Chiến</span>
+          <span class="gradient-text">HOÀI TỰ</span>
+          <span class="hero-tagline">Tìm về truyền thuyết hậu chiến</span>
         </h1>
         <p class="hero-subtitle">
-          Nơi lưu giữ lý thuyết và truyền thuyết của một thế giới sau chiến tranh.
+          Nơi lưu giữ những lời kể, truyền thuyết và hoài niệm của một thế giới sau chiến tranh.
         </p>
         <div class="hero-cta">
-          <router-link to="/ly-thuyet" class="btn-primary">Khám phá ngay</router-link>
-          <router-link to="/truyen-thuyet" class="btn-secondary">Đọc truyền thuyết</router-link>
+          <router-link to="/ve-hoai-tu" class="btn-primary">Ghé nhà Hoài tự</router-link>
+          <router-link to="/truyen-thuyet" class="btn-secondary">Mở kho lời kể</router-link>
         </div>
+      </div>
+    </section>
+
+    <!-- ẢNH BÌA -->
+    <section class="cover-section">
+      <div class="cover-wrap">
+        <img src="/anh-bia.png" alt="Hoài tự — Truyền thuyết hậu chiến" class="cover-img" />
+        <div class="cover-overlay"></div>
+      </div>
+    </section>
+
+    <!-- LỜI GIỚI THIỆU -->
+    <section class="intro-section">
+      <div class="intro-inner">
+        <div class="section-label">Lời giới thiệu</div>
+        <h2 class="intro-title">Hoài tự là gì?</h2>
+        <div class="intro-body">
+          <p>
+            Hoài tự là một căn nhà nhỏ dành cho những lời kể hậu chiến. Ở đây, tụi mình gom nhặt và lưu giữ các truyền thuyết về người chết, linh hồn, báo mộng, hài cốt, không gian thiêng và ký ức cộng đồng tại Quảng Nam - Đà Nẵng.
+          </p>
+          <p>
+            Từ sân đình, bến nước, ngõ chợ đến vỉa hè, khu chung cư và diễn đàn trực tuyến, truyền thuyết hậu chiến vẫn tiếp tục được kể, được tin và được tái tạo trong đời sống đương đại.
+          </p>
+          <p>
+            Mời bạn ghé nhà Hoài tự, để cùng lắng nghe những câu chuyện còn ở lại sau chiến tranh.
+          </p>
+        </div>
+        <router-link to="/ve-hoai-tu" class="intro-cta">Đọc thêm về Hoài tự →</router-link>
       </div>
     </section>
 
@@ -101,25 +129,33 @@ onMounted(async () => {
 
 .hero-title {
   font-family: 'Playfair Display', serif;
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-size: clamp(3rem, 8vw, 5.5rem);
   font-weight: 700;
-  line-height: 1.1;
-  margin-bottom: 1.5rem;
+  line-height: 1.05;
+  margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.4rem;
 }
 .gradient-text {
   background: linear-gradient(135deg, var(--accent) 0%, #e8c882 50%, #a07840 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  letter-spacing: 0.05em;
+}
+.hero-tagline {
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  font-weight: 400;
+  color: var(--text-secondary);
+  font-style: italic;
+  letter-spacing: 0.02em;
 }
 .hero-subtitle {
   font-size: 1rem;
   color: var(--text-secondary);
   line-height: 1.7;
-  margin: 0 auto 2.5rem;
+  margin: 0.5rem auto 2.5rem;
   max-width: 520px;
 }
 .hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
@@ -151,6 +187,74 @@ onMounted(async () => {
 }
 .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
 
+/* ẢNH BÌA */
+.cover-section {
+  width: 100%;
+}
+.cover-wrap {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 3rem;
+}
+.cover-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 12px;
+  filter: sepia(0.1) brightness(0.92);
+}
+.cover-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: linear-gradient(
+    to bottom,
+    rgba(10,10,15,0.15) 0%,
+    transparent 20%,
+    transparent 80%,
+    rgba(10,10,15,0.4) 100%
+  );
+  pointer-events: none;
+}
+
+/* LỜI GIỚI THIỆU */
+.intro-section {
+  padding: 6rem 3rem;
+  max-width: 820px;
+  margin: 0 auto;
+  text-align: center;
+}
+.intro-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-weight: 700;
+  margin: 0.75rem 0 2rem;
+}
+.intro-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  text-align: left;
+}
+.intro-body p {
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+.intro-cta {
+  display: inline-block;
+  margin-top: 2rem;
+  font-size: 0.875rem;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+.intro-cta:hover { border-color: var(--accent); }
+
+/* SECTION */
 .section { padding: 6rem 3rem; max-width: 1200px; margin: 0 auto; }
 .section-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 3rem; }
 .section-label { font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; }
@@ -172,8 +276,11 @@ onMounted(async () => {
 @media (max-width: 900px) {
   .posts-grid, .loading-grid { grid-template-columns: repeat(2, 1fr); }
   .section { padding: 4rem 1.5rem; }
+  .intro-section { padding: 4rem 1.5rem; }
+  .cover-wrap { padding: 0 1.5rem; }
 }
 @media (max-width: 580px) {
   .posts-grid, .loading-grid { grid-template-columns: 1fr; }
+  .cover-wrap { padding: 0 1rem; }
 }
 </style>

@@ -54,6 +54,9 @@ COPY nginx.conf /etc/nginx/conf.d/app.conf
 # Copy static files từ stage builder
 COPY --from=builder /app/dist /usr/share/nginx/html
 
+# Đảm bảo nginx có quyền đọc tất cả static files (ảnh, font, js...)
+RUN chmod -R 755 /usr/share/nginx/html
+
 # Port Nginx lắng nghe
 EXPOSE 80
 
