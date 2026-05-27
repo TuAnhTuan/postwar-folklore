@@ -38,6 +38,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Bắt buộc để cache GHA hoạt động
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       # Build và push image từ backend/
       - name: Build and push to GHCR
         uses: docker/build-push-action@v5
