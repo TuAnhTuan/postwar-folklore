@@ -35,14 +35,33 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostById(id));
     }
 
+    /**
+     * GET /api/posts/type/LEGEND
+     * GET /api/posts/type/LEGEND?location=quang-nam
+     */
     @GetMapping("/posts/type/{type}")
     public ResponseEntity<Page<PostDTO>> getPostsByType(
         @PathVariable Post.PostType type,
+        @RequestParam(required = false) String location,   // slug, e.g. "quang-nam"
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "9") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
+        if (location != null && !location.isBlank()) {
+            return ResponseEntity.ok(postService.getPostsByTypeAndLocation(type, location, pageable));
+        }
         return ResponseEntity.ok(postService.getPostsByType(type, pageable));
+    }
+
+    /** GET /api/posts/location/quang-nam */
+    @GetMapping("/posts/location/{slug}")
+    public ResponseEntity<Page<PostDTO>> getPostsByLocation(
+        @PathVariable String slug,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "9") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(postService.getPostsByLocation(slug, pageable));
     }
 
     // ── ADMIN ──
@@ -54,9 +73,10 @@ public class PostController {
         @RequestParam String content,
         @RequestParam Post.PostType type,
         @RequestParam(required = false) String author,
-        @RequestParam(required = false) String thumbnailUrl
+        @RequestParam(required = false) String thumbnailUrl,
+        @RequestParam(required = false) String location     // slug
     ) {
-        return ResponseEntity.ok(postService.createPost(title, content, type, author, thumbnailUrl));
+        return ResponseEntity.ok(postService.createPost(title, content, type, author, thumbnailUrl, location));
     }
 
     @PutMapping("/admin/posts/{id}")
@@ -66,9 +86,10 @@ public class PostController {
         @RequestParam(required = false) String title,
         @RequestParam(required = false) String content,
         @RequestParam(required = false) String author,
-        @RequestParam(required = false) String thumbnailUrl
+        @RequestParam(required = false) String thumbnailUrl,
+        @RequestParam(required = false) String location     // slug
     ) {
-        return ResponseEntity.ok(postService.updatePost(id, title, content, author, thumbnailUrl));
+        return ResponseEntity.ok(postService.updatePost(id, title, content, author, thumbnailUrl, location));
     }
 
     @DeleteMapping("/admin/posts/{id}")

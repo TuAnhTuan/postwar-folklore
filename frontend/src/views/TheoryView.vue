@@ -56,27 +56,18 @@ onMounted(async () => {
 
 <style scoped>
 .page { padding: 8rem 3rem 6rem; max-width: 1200px; margin: 0 auto; }
-.page-header { margin-bottom: 3rem; }
+.page-header { margin-bottom: 2rem; }
 .section-label { font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; }
 .page-title { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; margin-bottom: 0.75rem; }
 .page-desc { font-size: 0.95rem; color: var(--text-secondary); }
+
 .posts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
 .loading-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
 .skeleton-card { height: 320px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; animation: shimmer 1.5s ease-in-out infinite; }
 @keyframes shimmer { 0%,100%{opacity:0.5;} 50%{opacity:1;} }
 .empty-state { text-align: center; padding: 4rem; color: var(--text-muted); }
 .load-more { text-align: center; margin-top: 3rem; }
-.btn-load {
-  padding: 12px 32px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-family: 'Inter', sans-serif;
-  transition: all 0.2s;
-}
+.btn-load { padding: 12px 32px; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--text-secondary); cursor: pointer; font-size: 0.875rem; font-family: 'Inter', sans-serif; transition: all 0.2s; }
 .btn-load:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
 .btn-load:disabled { opacity: 0.5; cursor: not-allowed; }
 @media (max-width: 900px) { .posts-grid, .loading-grid { grid-template-columns: repeat(2, 1fr); } .page { padding: 7rem 1.5rem 4rem; } }

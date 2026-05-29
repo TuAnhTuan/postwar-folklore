@@ -32,6 +32,11 @@ public class Post {
     @Column(name = "thumbnail_url", length = 500)
     private String thumbnailUrl;
 
+    /** FK → locations.id, nullable (bài viết chưa phân loại địa điểm) */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id")
+    private Location location;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

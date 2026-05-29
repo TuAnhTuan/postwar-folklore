@@ -6,6 +6,7 @@
 
     <div class="admin-tabs">
       <button :class="['tab', { active: activeTab === 'posts' }]" @click="activeTab = 'posts'">Quản lý bài viết</button>
+      <button :class="['tab', { active: activeTab === 'locations' }]" @click="activeTab = 'locations'">Địa điểm</button>
       <button :class="['tab', { active: activeTab === 'prompt' }]" @click="activeTab = 'prompt'">System Prompt AI</button>
     </div>
 
@@ -26,10 +27,16 @@
         <div class="form-row">
           <input v-model="form.title" class="form-input" placeholder="Tiêu đề *" required />
           <select v-model="form.type" class="form-input form-select">
-            <option value="THEORY">Lý thuyết</option>
-            <option value="LEGEND">Truyền thuyết</option>
+            <option value="THEORY">Nếp nghĩ</option>
+            <option value="LEGEND">Lời kể</option>
           </select>
         </div>
+        <select v-if="form.type === 'LEGEND'" v-model="form.location" class="form-input form-select">
+          <option value="">— Chưa phân loại vùng miền —</option>
+          <option v-for="loc in locations" :key="loc.slug" :value="loc.slug">
+            {{ loc.name }}
+          </option>
+        </select>
         <input v-model="form.author" class="form-input" placeholder="Tác giả" />
         <textarea v-model="form.content" class="form-input" rows="10" placeholder="Nội dung *" required></textarea>
         <div class="file-row">
@@ -62,9 +69,10 @@
         <div v-for="post in posts" :key="post.id" class="post-item">
           <div class="post-item-info">
             <span class="post-type-badge" :class="post.type.toLowerCase()">
-              {{ post.type === 'THEORY' ? 'Lý thuyết' : 'Truyền thuyết' }}
+              {{ post.type === 'THEORY' ? 'Nếp nghĩ' : 'Lời kể' }}
             </span>
             <span class="post-item-title">{{ post.title }}</span>
+            <span class="post-location-badge" v-if="post.location">{{ post.location.name }}</span>
             <span class="post-item-author" v-if="post.author">— {{ post.author }}</span>
           </div>
           <div class="post-item-actions">
@@ -77,6 +85,39 @@
               {{ deletingId === post.id ? '...' : 'Xóa' }}
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: Địa điểm -->
+    <div v-if="activeTab === 'locations'">
+      <form class="location-form" @submit.prevent="submitLocation">
+        <div class="form-title-bar">
+          <span class="form-label">📍 Thêm địa điểm mới</span>
+        </div>
+        <div class="form-row loc-row">
+          <input v-model="locForm.slug"   class="form-input" placeholder="slug (vd: hue, quang-ngai) *" required />
+          <input v-model="locForm.name"   class="form-input" placeholder="Tên hiển thị (vd: Huế) *" required />
+          <input v-model="locForm.region" class="form-input" placeholder="Vùng (vd: Miền Trung)" />
+          <button type="submit" class="btn-submit" :disabled="submittingLoc">
+            {{ submittingLoc ? '...' : 'Thêm' }}
+          </button>
+        </div>
+        <p v-if="locError" class="error-msg">{{ locError }}</p>
+      </form>
+
+      <div class="location-list">
+        <div v-if="locations.length === 0" class="empty-state">Chưa có địa điểm nào.</div>
+        <div v-for="loc in locations" :key="loc.id" class="location-item">
+          <div class="loc-info">
+            <span class="loc-name">{{ loc.name }}</span>
+            <span class="loc-slug">{{ loc.slug }}</span>
+            <span class="loc-region" v-if="loc.region">{{ loc.region }}</span>
+          </div>
+          <button class="btn-delete" @click="deleteLocation(loc)" :disabled="deletingLocId === loc.id">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            {{ deletingLocId === loc.id ? '...' : 'Xóa' }}
+          </button>
         </div>
       </div>
     </div>
@@ -103,12 +144,18 @@ const submitting   = ref(false)
 const formError    = ref('')
 const editingId    = ref(null)
 const posts        = ref([])
+const locations    = ref([])
 const loadingPosts = ref(true)
 const deletingId   = ref(null)
 const systemPrompt = ref('')
 const savingPrompt = ref(false)
 
-const emptyForm = () => ({ title: '', content: '', type: 'THEORY', author: '', thumbnail: null })
+const emptyForm    = () => ({ title: '', content: '', type: 'LEGEND', author: '', thumbnail: null, location: '' })
+const emptyLocForm = () => ({ slug: '', name: '', region: '' })
+const locForm        = ref(emptyLocForm())
+const submittingLoc  = ref(false)
+const deletingLocId  = ref(null)
+const locError       = ref('')
 const form = ref(emptyForm())
 
 // ── POSTS ────────────────────────────────────────────
@@ -137,7 +184,8 @@ function openEdit(post) {
     content: post.content,
     type: post.type,
     author: post.author || '',
-    thumbnail: null
+    thumbnail: null,
+    location: post.location?.slug || ''
   }
   showForm.value = true
   setTimeout(() => window.scrollTo({ top: 200, behavior: 'smooth' }), 50)
@@ -165,6 +213,7 @@ async function submitPost() {
     })
     if (form.value.author) params.append('author', form.value.author)
     if (thumbnailUrl) params.append('thumbnailUrl', thumbnailUrl)
+    if (form.value.type === 'LEGEND' && form.value.location) params.append('location', form.value.location)
 
     if (editingId.value) {
       await api.put(`/admin/posts/${editingId.value}`, params)
@@ -188,6 +237,30 @@ async function deletePost(post) {
   finally { deletingId.value = null }
 }
 
+// ── LOCATIONS ────────────────────────────────────────
+
+async function submitLocation() {
+  submittingLoc.value = true; locError.value = ''
+  try {
+    const params = new URLSearchParams({ slug: locForm.value.slug, name: locForm.value.name })
+    if (locForm.value.region) params.append('region', locForm.value.region)
+    const newLoc = await api.post('/admin/locations', params)
+    locations.value.push(newLoc)
+    locForm.value = emptyLocForm()
+  } catch (e) { locError.value = e.message }
+  finally { submittingLoc.value = false }
+}
+
+async function deleteLocation(loc) {
+  if (!confirm(`Xóa địa điểm "${loc.name}"? Các bài viết thuộc địa điểm này sẽ thành chưa phân loại.`)) return
+  deletingLocId.value = loc.id
+  try {
+    await api.delete(`/admin/locations/${loc.id}`)
+    locations.value = locations.value.filter(l => l.id !== loc.id)
+  } catch (e) { alert('Xóa thất bại: ' + e.message) }
+  finally { deletingLocId.value = null }
+}
+
 // ── PROMPT ───────────────────────────────────────────
 
 async function savePrompt() {
@@ -199,6 +272,7 @@ async function savePrompt() {
 
 onMounted(async () => {
   fetchPosts()
+  try { locations.value = await api.get('/locations') } catch (e) { /* ignore */ }
   try {
     const res = await api.get('/ai/prompt')
     systemPrompt.value = res.prompt || ''
@@ -256,7 +330,18 @@ textarea.form-input { resize: vertical; }
 .post-type-badge.legend { background: rgba(201,169,110,0.15); color: var(--accent); }
 .post-item-title { font-size: 0.875rem; font-weight: 500; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .post-item-author { font-size: 0.78rem; color: var(--text-muted); flex-shrink: 0; }
+.post-location-badge { font-size: 0.68rem; padding: 2px 8px; border-radius: 20px; background: rgba(217,114,114,0.12); color: #d97272; flex-shrink: 0; }
 .post-item-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+
+/* Locations */
+.location-form { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
+.loc-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 0.75rem; align-items: center; }
+.location-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.location-item { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1.2rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; }
+.loc-info { display: flex; align-items: center; gap: 10px; }
+.loc-name { font-size: 0.875rem; font-weight: 500; color: var(--text-primary); }
+.loc-slug { font-size: 0.75rem; color: var(--text-muted); font-family: monospace; background: var(--bg-secondary); padding: 2px 8px; border-radius: 4px; }
+.loc-region { font-size: 0.75rem; color: var(--text-muted); }
 
 /* Prompt */
 .prompt-section { display: flex; flex-direction: column; gap: 1rem; }

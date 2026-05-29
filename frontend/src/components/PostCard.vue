@@ -7,9 +7,14 @@
       </div>
     </div>
     <div class="post-body">
-      <span class="post-tag" :class="post.type === 'THEORY' ? 'tag-theory' : 'tag-legend'">
-        {{ post.type === 'THEORY' ? 'Lý thuyết' : 'Truyền thuyết' }}
-      </span>
+      <div class="post-tags">
+        <span class="post-tag" :class="post.type === 'THEORY' ? 'tag-theory' : 'tag-legend'">
+          {{ post.type === 'THEORY' ? 'Lý thuyết' : 'Truyền thuyết' }}
+        </span>
+        <span v-if="post.location" class="post-tag tag-location">
+          📍 {{ post.location.name }}
+        </span>
+      </div>
       <h3 class="post-title">{{ post.title }}</h3>
       <p class="post-excerpt">{{ excerpt }}</p>
       <div class="post-meta">
@@ -59,9 +64,11 @@ const thumbSrc = computed(() =>
 .thumb-theory { background: linear-gradient(135deg, #1a1a2e, #16213e); }
 .thumb-legend { background: linear-gradient(135deg, #1a0a0a, #2d1515); }
 .post-body { padding: 1.4rem; }
-.post-tag { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem; }
+.post-tags { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 0.75rem; }
+.post-tag { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
 .tag-theory { background: rgba(201,169,110,0.1); color: var(--accent); border: 1px solid rgba(201,169,110,0.2); }
 .tag-legend { background: rgba(139,45,45,0.15); color: #d97272; border: 1px solid rgba(139,45,45,0.3); }
+.tag-location { background: rgba(99,179,237,0.08); color: #7ec8e3; border: 1px solid rgba(99,179,237,0.2); letter-spacing: 0.05em; text-transform: none; font-weight: 500; }
 .post-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.6rem; line-height: 1.4; }
 .post-excerpt { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1.2rem; }
 .post-meta { display: flex; align-items: center; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted); }

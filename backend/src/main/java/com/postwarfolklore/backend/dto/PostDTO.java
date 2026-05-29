@@ -11,6 +11,7 @@ import java.util.UUID;
 public class PostDTO {
     private UUID id;
     private Post.PostType type;
+    private LocationDTO location;
     private String title;
     private String content;
     private String author;
@@ -22,6 +23,7 @@ public class PostDTO {
         return PostDTO.builder()
             .id(post.getId())
             .type(post.getType())
+            .location(post.getLocation() != null ? LocationDTO.from(post.getLocation()) : null)
             .title(post.getTitle())
             .content(post.getContent())
             .author(post.getAuthor())
