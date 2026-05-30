@@ -32,9 +32,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Cho phép preflight OPTIONS đi qua
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // Public: GET tất cả bài viết và bình luận
+                // Public: GET tất cả bài viết, bình luận và địa điểm
                 .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/locations").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/ai/prompt").permitAll()
                 // Public: Chat AI
                 .requestMatchers(HttpMethod.POST, "/api/ai/chat").permitAll()
