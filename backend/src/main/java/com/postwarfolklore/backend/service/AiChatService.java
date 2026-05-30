@@ -37,7 +37,7 @@ public class AiChatService {
     private String geminiEndpoint;
 
     private static final String NOT_FOUND_REPLY =
-        "Ta chưa có tư liệu về điều này trong kho lưu trữ. " +
+        "Mình chưa có tư liệu về điều này trong kho lưu trữ. " +
         "Hãy thử hỏi về các câu chuyện và lý thuyết đã được lưu giữ tại đây.";
 
     // ── PUBLIC API ──────────────────────────────────────────────
@@ -142,7 +142,12 @@ public class AiChatService {
             log.warn("Gemini returned non-UUID, falling back to keyword search");
             return findByKeyword(userMessage, posts);
         } catch (Exception e) {
-            log.error("Gemini matcher error: {}", e.getMessage());
+            String msg = e.getMessage();
+            if (msg != null && msg.contains("429")) {
+                log.warn("Gemini rate limit hit, falling back to keyword search");
+            } else {
+                log.warn("Gemini matcher error: {}, falling back to keyword search", msg);
+            }
             return findByKeyword(userMessage, posts);
         }
     }
