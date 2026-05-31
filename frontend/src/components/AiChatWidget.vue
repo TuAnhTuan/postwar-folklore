@@ -23,7 +23,7 @@
             <span v-else>👤</span>
           </div>
           <div class="msg-bubble">
-            <span>{{ msg.text }}</span>
+            <p style="white-space: pre-wrap; margin: 0; word-break: break-word;">{{ msg.text }}</p>
             <RouterLink
               v-if="msg.postId"
               :to="`/bai-viet/${msg.postId}`"
@@ -206,6 +206,7 @@ async function scrollToBottom() {
 .msg-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .chat-msg.ai .msg-avatar { background: var(--bg-secondary); border-color: var(--border); }
 .msg-bubble { max-width: 75%; padding: 10px 13px; border-radius: 12px; font-size: 0.8rem; line-height: 1.55; }
+.msg-text { white-space: pre-wrap; margin: 0; }
 .chat-msg.ai .msg-bubble { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); border-bottom-left-radius: 3px; display: flex; flex-direction: column; gap: 8px; }
 .chat-msg.user .msg-bubble { background: rgba(201,169,110,0.15); border: 1px solid rgba(201,169,110,0.2); color: var(--text-primary); border-bottom-right-radius: 3px; }
 .read-more-link { display: inline-block; margin-top: 2px; color: var(--accent); font-size: 0.75rem; font-weight: 600; text-decoration: none; border-top: 1px solid rgba(201,169,110,0.2); padding-top: 6px; transition: opacity 0.2s; letter-spacing: 0.02em; }
